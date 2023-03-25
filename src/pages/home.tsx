@@ -14,12 +14,12 @@ export const Home: FC = () => {
     const { dealerInfo, setDealerInfo, dealACard, shuffleTheDeck, restartGame, startGame } = useDealerContext();
 
     return (
-        <section className="grid grid-rows-[10%,35%,55%] h-screen">
+        <section className="grid grid-rows-[5%,40%,55%] h-screen">
             
             <Navbar />
             <JimsSection />
             <TableSection />
 
         </section>
-    )
-}
+    );
+};

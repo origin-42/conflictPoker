@@ -7,9 +7,13 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     borderWidth: {
-      '16': '16px'
+      '32': '32px'
     },
-    extend: {},
+    extend: {
+      boxShadow: {
+        'upper': '0 -8px 6px -6px rgba(0, 0, 0, 0.3)',
+      }
+    },
   },
   variants: {
     extend: {},

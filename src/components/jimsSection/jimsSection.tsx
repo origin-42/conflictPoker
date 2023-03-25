@@ -4,7 +4,7 @@ export const JimsSection: FC = () => {
 
 
     return (
-        <section className='bg-gray-200 h-3/10'>
+        <section id='jimsSection' className='bg-gray-200 h-3/10'>
             <h1>HI</h1>
         </section>
     );

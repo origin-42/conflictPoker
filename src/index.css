@@ -13,3 +13,10 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+#jimsSection {
+  height: auto;
+  background-image: url("./assets/pokerbg_generated.png");
+  background-size: cover;
+  background-position: center;
+}
