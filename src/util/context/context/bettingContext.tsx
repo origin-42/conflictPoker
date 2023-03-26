@@ -32,7 +32,7 @@ export interface BettingContextValues {
 }
 
 const roundStart: RoundStart = {
-    potSize: 2,
+    potSize: 0,
     button: "",
     blinds: 0,
     smallBlind: "",
