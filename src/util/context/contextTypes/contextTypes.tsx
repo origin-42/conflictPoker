@@ -28,6 +28,7 @@ export interface CardImages {
 // The details to hold the games values
 export interface GameStart {
     deck_id: string;
+    timer: boolean;
     flop: Card[];
     turn: Card[];
     river: Card[];
@@ -40,6 +41,7 @@ export interface RoundStart {
     smallBlind: string;
     bigBlind: string;
     button: string;
+    blindsLevel: number;
     interval: number;
     playerBet: number;
     playerRaise: number;

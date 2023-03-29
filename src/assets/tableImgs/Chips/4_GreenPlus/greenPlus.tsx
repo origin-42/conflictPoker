@@ -7,9 +7,10 @@ export type GreenStacks = {
 }
   
 export const greenStacks: GreenStacks = {
-    large: require('./Large.png'),
-    midLarge: require('./MidLarge.png'),
-    mid: require('./Mid.png'),
-    midSmall: require('./MidSmall.png'),
-    small: require('./Small.png'),
+    large: 'Large.png',
+    midLarge: 'MidLarge.png',
+    mid: 'Mid.png',
+    midSmall: 'MidSmall.png',
+    small: 'Small.png',
 };
+

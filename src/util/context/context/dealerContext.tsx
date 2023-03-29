@@ -28,6 +28,7 @@ export interface DealerContextValues {
 
 const gameStart: GameStart = {
   deck_id: '',
+  timer: false,
   flop: [] as Card[],
   turn: [] as Card[],
   river: [] as Card[],

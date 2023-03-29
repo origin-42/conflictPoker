@@ -8,7 +8,7 @@ export interface TableImages {
     stacks: PokerStacks;
 };
 
-export const tableImages: TableImages = {
+export const TableImages: TableImages = {
     button,
     cards: allCards,
     stacks: pokerStacks,

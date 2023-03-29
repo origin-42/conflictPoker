@@ -1,5 +1,5 @@
 import React from "react";
-import { AiFillAlert } from "react-icons/ai";
+import { GiCardAceClubs, GiCardKingClubs, GiCardQueenClubs, GiCardJackClubs, GiCard10Clubs } from "react-icons/gi";
 import { MdOutlineRestartAlt } from "react-icons/md";
 
 export const Navbar: React.FC = () => {
@@ -8,7 +8,7 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="flex items-center justify-between p-4 bg-transparent">
       <div className="flex items-center">
-        <AiFillAlert />
+        <GiCardAceClubs /><GiCardKingClubs /><GiCardQueenClubs /><GiCardJackClubs /><GiCard10Clubs />
       </div>
       <div className="flex items-center">
         <button
