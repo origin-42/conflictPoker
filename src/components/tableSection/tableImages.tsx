@@ -29,46 +29,46 @@ import blackImgMS from '../../assets/tableImgs/Chips/5_Black/SmallMid.png';
 import blackImgS from '../../assets/tableImgs/Chips/5_Black/Small.png';
 
 export interface ChipImages {
-  Large: string;
+  large: string;
   midLarge: string;
-  Mid: string;
+  mid: string;
   midSmall: string;
   small: string;
 }
 
 export const chipsImages: ChipImages[] = [
   {
-    Large: allImgL,
+    large: allImgL,
     midLarge: allImgML,
-    Mid: allImgM,
+    mid: allImgM,
     midSmall: allImgMS,
     small: allImgS,
   },
   {
-    Large: redImgL,
+    large: redImgL,
     midLarge: redImgML,
-    Mid: redImgM,
+    mid: redImgM,
     midSmall: redImgMS,
     small: redImgS,
   },
   {
-    Large: blueImgL,
+    large: blueImgL,
     midLarge: blueImgML,
-    Mid: blueImgM,
+    mid: blueImgM,
     midSmall: blueImgMS,
     small: blueImgS,
   },
   {
-    Large: greenImgL,
+    large: greenImgL,
     midLarge: greenImgML,
-    Mid: greenImgM,
+    mid: greenImgM,
     midSmall: greenImgMS,
     small: greenImgS,
   },
   {
-    Large: blackImgL,
+    large: blackImgL,
     midLarge: blackImgML,
-    Mid: blackImgM,
+    mid: blackImgM,
     midSmall: blackImgMS,
     small: blackImgS,
   },
