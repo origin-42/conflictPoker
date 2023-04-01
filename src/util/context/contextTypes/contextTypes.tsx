@@ -18,6 +18,7 @@ export interface Card {
     images: {
         svg: string;
         png: string;
+        blank: string;
     };
     value: string;
     suit: string;

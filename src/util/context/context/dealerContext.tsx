@@ -1,6 +1,7 @@
 import React, { FC, createContext, useContext, useState } from 'react';
 import { fetchNewDeck, takeNewCard, shuffleDeck } from '../contextHelpers/dealing';
 import { NewDeck, NewCard, Card, GameStart } from '../contextTypes/contextTypes';
+import cardBack from "../../../assets/tableImgs/Cards/CardBack/cardBack.png";
 
 const DealerContext = createContext<DealerContextValues | null>(null);
 
@@ -42,6 +43,7 @@ export const DealerProvider: FC<any> = ({ children }) => {
 
     dealACard = async function (deck_id, placement) {
         const newCard: NewCard = await takeNewCard(deck_id);
+        if (placement === 'jim' || placement === 'burn') newCard.cards[0].images.blank = cardBack;
 
         if (placement === 'jim') return setDealerInfo({ ...dealerInfo, jimsHand: [...dealerInfo.jimsHand, ...newCard.cards] });
         if (placement === 'player') return setDealerInfo({ ...dealerInfo, playerHand: [...dealerInfo.playerHand, ...newCard.cards] });
