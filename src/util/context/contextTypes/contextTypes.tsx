@@ -15,15 +15,13 @@ export interface NewCard {
 export interface Card {
     code: string;
     image: string;
-    images: CardImages[];
+    images: {
+        svg: string;
+        png: string;
+    };
     value: string;
     suit: string;
 } 
-  
-export interface CardImages {
-    svg: string;
-    png: string;
-}
 
 // The details to hold the games values
 export interface GameStart {
@@ -32,6 +30,7 @@ export interface GameStart {
     flop: Card[];
     turn: Card[];
     river: Card[];
+    burn: Card[];
     playerHand: Card[];
     jimsHand: Card[];
 }

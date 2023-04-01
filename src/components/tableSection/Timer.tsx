@@ -75,7 +75,7 @@ export const Timer: React.FC = () => {
   }, [seconds]);
 
   return (
-    <div>
+    <div className='text-white'>
       <p className='font-bold'>Total time: {totalTime}</p>
       <p className='font-bold'>{blindsText}</p>
     </div>

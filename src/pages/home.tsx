@@ -1,6 +1,5 @@
 import { FC, useContext } from 'react';
 
-import { Navbar } from "../components/navbar/navbar";
 import { JimsSection } from "../components/jimsSection/jimsSection";
 import { TableSection } from "../components/tableSection/tableSection";
 
@@ -14,9 +13,8 @@ export const Home: FC = () => {
     const { dealerInfo, setDealerInfo, dealACard, shuffleTheDeck, restartGame, startGame } = useDealerContext();
 
     return (
-        <section className="grid grid-rows-[5%,40%,55%] h-screen">
+        <section className="grid grid-rows-[45%,55%] h-screen">
             
-            <Navbar />
             <JimsSection />
             <TableSection />
 

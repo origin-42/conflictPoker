@@ -32,6 +32,7 @@ const gameStart: GameStart = {
   flop: [] as Card[],
   turn: [] as Card[],
   river: [] as Card[],
+  burn: [] as Card[],
   playerHand: [] as Card[],
   jimsHand: [] as Card[],
 };
@@ -47,6 +48,7 @@ export const DealerProvider: FC<any> = ({ children }) => {
         if (placement === 'flop') return setDealerInfo({ ...dealerInfo, flop: [...dealerInfo.flop, ...newCard.cards] });
         if (placement === 'turn') return setDealerInfo({ ...dealerInfo, turn: [...newCard.cards] });
         if (placement === 'river') return setDealerInfo({ ...dealerInfo, river: [...newCard.cards] });
+        if (placement === 'burn') return setDealerInfo({ ...dealerInfo, burn: [...newCard.cards] });
     };
 
     shuffleTheDeck = async function (deck_id) {

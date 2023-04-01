@@ -1,13 +1,12 @@
 import React, { FC, useState, useEffect } from 'react';
-import { chipsImages, ChipImages } from './tableImages';
-import { Timer } from './Timer';
+import { chipsImages } from './tableImages';
 import { useBettingContext } from '../../util/context/context/bettingContext';
 import { BettingContextValues } from '../../util/context/context/bettingContext';
 
 
-export const GameLayer: FC = () => {
+export const ChipsLayer: FC = () => {
     const betData: BettingContextValues = useBettingContext();
-    const { bettingInfo, setBetInfo } = betData;
+    const { bettingInfo } = betData;
 
     const [chipValues, setValues] = useState({
         pot: "",
@@ -50,19 +49,6 @@ export const GameLayer: FC = () => {
 
     return (
         <section id='tableSection' className='absolute grid grid-cols-7 grid-rows-3 h-full justify-between gap-4'>
-            <Timer />
-            <div></div>
-            <div id='jimsBet' className="relative w-full h-full">
-                {chipValues.jim? <img src={chipValues.jim} alt='jims Bet or Raise' className='w-full h-full object-cover'></img>: <div></div>}
-                {bettingInfo.jimsBet || bettingInfo.jimsRaise? (
-                    <div className="absolute inset-0 flex items-end justify-center">
-                        <div className="bg-white px-4 py-2 rounded-lg">
-                            <p className="text-lg font-medium">{bettingInfo.jimsBet? bettingInfo.jimsBet:bettingInfo.jimsRaise}</p>
-                        </div>
-                    </div>
-                ):<div></div>}
-                
-            </div>
             <div></div>
             <div></div>
             <div id='jimsStack' className="relative w-full h-full">
@@ -74,8 +60,19 @@ export const GameLayer: FC = () => {
                         </div>
                     </div>
                 ):<div></div>}
-                
             </div>
+            <div></div>
+            <div id='jimsBet' className="relative w-full h-full">
+                {chipValues.jim? <img src={chipValues.jim} alt='jims Bet or Raise' className='w-full h-full object-cover'></img>: <div></div>}
+                {bettingInfo.jimsBet || bettingInfo.jimsRaise? (
+                    <div className="absolute inset-0 flex items-end justify-center">
+                        <div className="bg-white px-4 py-2 rounded-lg">
+                            <p className="text-lg font-medium">{bettingInfo.jimsBet? bettingInfo.jimsBet:bettingInfo.jimsRaise}</p>
+                        </div>
+                    </div>
+                ):<div></div>}
+            </div>
+            <div></div>
             <div></div>
             <div></div>
             <div></div>
@@ -91,7 +88,6 @@ export const GameLayer: FC = () => {
                         </div>
                     </div>
                 ): <div></div>}
-                
             </div>
             <div></div>
             <div></div>
@@ -107,6 +103,7 @@ export const GameLayer: FC = () => {
             </div>
             <div></div>
             <div></div>
+            <div></div>
             <div id='yourBet' className="relative w-full h-full">
                 {chipValues.player? <img src={chipValues.player} alt='Your bet or raise' className='w-full h-full object-cover'></img>: <div></div>}
                 {bettingInfo.playerRaise || bettingInfo.playerBet ? (
@@ -117,7 +114,6 @@ export const GameLayer: FC = () => {
                     </div>
                 ): <div></div>}
             </div>
-            <div></div>
             <div></div>
         </section>
     );

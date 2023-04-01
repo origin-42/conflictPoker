@@ -32,19 +32,19 @@ export interface BettingContextValues {
 }
 
 const roundStart: RoundStart = {
-    potSize: 0,
+    potSize: 1000,
     button: "",
     blindsLevel: 0,
     blinds: 0,
     smallBlind: "",
     bigBlind: "",
     interval: 0,
-    playerBet: 0,
+    playerBet: 250,
     playerRaise: 0,
-    playerStack: 0,
-    jimsBet: 0,
+    playerStack: 2250,
+    jimsBet: 250,
     jimsRaise: 0,
-    jimsStack: 0,
+    jimsStack: 2250,
 }
 
 export const BettingProvider: FC<any> = function ({ children }) {
