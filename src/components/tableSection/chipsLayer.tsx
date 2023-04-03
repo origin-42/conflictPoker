@@ -50,7 +50,6 @@ export const ChipsLayer: FC = () => {
     return (
         <section id='tableSection' className='absolute grid grid-cols-7 grid-rows-3 h-full justify-between gap-4'>
             <div></div>
-            <div></div>
             <div id='jimsStack' className="relative w-full h-full">
                 {chipValues.jimsStack? <img src={chipValues.jimsStack} alt='Jims Stack' className='w-full h-full object-cover'></img>: <div></div>}
                 {bettingInfo.jimsStack? (
@@ -61,6 +60,7 @@ export const ChipsLayer: FC = () => {
                     </div>
                 ):<div></div>}
             </div>
+            <div></div>
             <div></div>
             <div id='jimsBet' className="relative w-full h-full">
                 {chipValues.jim? <img src={chipValues.jim} alt='jims Bet or Raise' className='w-full h-full object-cover'></img>: <div></div>}

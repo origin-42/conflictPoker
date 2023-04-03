@@ -27,6 +27,7 @@ export interface Card {
 // The details to hold the games values
 export interface GameStart {
     deck_id: string;
+    playerTurn: string;
     timer: boolean;
     flop: Card[];
     turn: Card[];

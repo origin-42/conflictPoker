@@ -6,13 +6,13 @@ import { Home } from './pages/home';
 export const App = (): JSX.Element => {
   return (
     <main className="App">
-      <DealerProvider>
-        <BettingProvider>
+      <BettingProvider>
+        <DealerProvider>
           <DeterminingProvider>
             <Home />
           </DeterminingProvider>
-        </BettingProvider>
-      </DealerProvider>
+        </DealerProvider>
+      </BettingProvider>
     </main>
   );
 };

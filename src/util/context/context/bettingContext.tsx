@@ -1,5 +1,6 @@
-import React, { FC, createContext, useContext, useState } from 'react';
+import React, { FC, createContext, useContext, useState, useEffect } from 'react';
 import { RoundStart } from '../contextTypes/contextTypes';
+import button from "../../../assets/tableImgs/button.png";
 
 const BettingContext = createContext<BettingContextValues | null>(null);
 
@@ -9,7 +10,7 @@ export const useBettingContext = () => {
       throw new Error('useBettingContext must be used within a BettingContextProvider');
     }
     return context;
-  };
+};
 
 let setBlind: (button: string) => void;
 let makeBet: (player: string, bet: number) => void;
@@ -31,24 +32,28 @@ export interface BettingContextValues {
     fold: (winner: string) => void;
 }
 
-const roundStart: RoundStart = {
-    potSize: 1000,
-    button: "",
+export const roundStart: RoundStart = {
+    potSize: 0,
+    button: button,
     blindsLevel: 0,
     blinds: 0,
     smallBlind: "",
     bigBlind: "",
     interval: 0,
-    playerBet: 250,
+    playerBet: 0,
     playerRaise: 0,
-    playerStack: 2250,
-    jimsBet: 250,
+    playerStack: 0,
+    jimsBet: 0,
     jimsRaise: 0,
-    jimsStack: 2250,
+    jimsStack: 0,
 }
 
 export const BettingProvider: FC<any> = function ({ children }) {
     const [bettingInfo, setBetInfo] = useState<RoundStart>(roundStart);
+
+    useEffect(() => {
+        console.log(bettingInfo)
+    }, [bettingInfo])
 
     setBlind = function (button: string) {
         // Sets the blind for each player
