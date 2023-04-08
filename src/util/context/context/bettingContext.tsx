@@ -35,6 +35,8 @@ export interface BettingContextValues {
 export const roundStart: RoundStart = {
     potSize: 0,
     button: button,
+    playerMove: "",
+    dealPhase: "",
     blindsLevel: 0,
     blinds: 0,
     smallBlind: "",
@@ -79,16 +81,16 @@ export const BettingProvider: FC<any> = function ({ children }) {
             let allInOrBet = bettingInfo.playerStack <= bet? bettingInfo.playerStack: bet;
             const playerBet = bettingInfo.playerBet + allInOrBet;
             
-            if (bettingInfo.playerStack <= bet) return setBetInfo({ ...bettingInfo, playerStack: 0 });
-            else return setBetInfo({ ...bettingInfo, playerBet });
+            if (bettingInfo.playerStack <= bet) return setBetInfo({ ...bettingInfo, playerStack: 0, playerMove: "jim" });
+            else return setBetInfo({ ...bettingInfo, playerBet, playerMove: "jim" });
         };
         
         if (player === "jim") {
             let allInOrBet = bettingInfo.jimsStack <= bet? bettingInfo.jimsStack: bet;
             const jimsBet = bettingInfo.jimsBet + allInOrBet;
             
-            if (bettingInfo.jimsStack <= bet) return setBetInfo({ ...bettingInfo, jimsStack: 0 });
-            else setBetInfo({ ...bettingInfo, jimsBet });
+            if (bettingInfo.jimsStack <= bet) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
+            else setBetInfo({ ...bettingInfo, jimsBet, playerMove: "player" });
         };
     };
     
@@ -98,16 +100,16 @@ export const BettingProvider: FC<any> = function ({ children }) {
             let allInOrRaise = bettingInfo.playerStack <= raise? bettingInfo.playerStack: raise;
             let playerRaise = bettingInfo.playerBet + allInOrRaise;
             
-            if (bettingInfo.jimsStack <= raise) return setBetInfo({ ...bettingInfo, playerStack: 0 });
-            else return setBetInfo({ ...bettingInfo, playerRaise, playerBet: 0 });
+            if (bettingInfo.jimsStack <= raise) return setBetInfo({ ...bettingInfo, playerStack: 0, playerMove: "jim" });
+            else return setBetInfo({ ...bettingInfo, playerRaise, playerBet: 0, playerMove: "jim" });
         };
         
         if (player === "jim") {
             let allInOrRaise = bettingInfo.jimsStack <= raise? bettingInfo.jimsStack: raise;
             let jimsRaise = bettingInfo.jimsBet + allInOrRaise;
             
-            if (bettingInfo.jimsStack <= raise) return setBetInfo({ ...bettingInfo, jimsStack: 0 });
-            else setBetInfo({ ...bettingInfo, jimsRaise, jimsBet: 0 });
+            if (bettingInfo.jimsStack <= raise) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
+            else setBetInfo({ ...bettingInfo, jimsRaise, jimsBet: 0, playerMove: "player" });
         };
     };
     
@@ -120,8 +122,8 @@ export const BettingProvider: FC<any> = function ({ children }) {
 
             let call = isAllIn? playerTotalStack: bettingInfo.jimsRaise + bettingInfo.jimsBet;
             
-            if (isAllIn) return setBetInfo({ ...bettingInfo, playerStack: 0 });
-            else return setBetInfo({ ...bettingInfo, playerBet: call | call, playerRaise: 0 });
+            if (isAllIn) return setBetInfo({ ...bettingInfo, playerStack: 0, playerMove: "jim" });
+            else return setBetInfo({ ...bettingInfo, playerBet: call | call, playerRaise: 0, playerMove: "jim" });
         };
         
         if (player === "jim") {
@@ -131,8 +133,8 @@ export const BettingProvider: FC<any> = function ({ children }) {
 
             let call = isAllIn? jimsTotalStack: bettingInfo.playerRaise + bettingInfo.playerBet;
             
-            if (isAllIn) return setBetInfo({ ...bettingInfo, jimsStack: 0 });
-            else setBetInfo({ ...bettingInfo, jimsBet: call, jimsRaise: 0 });
+            if (isAllIn) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
+            else setBetInfo({ ...bettingInfo, jimsBet: call, jimsRaise: 0, playerMove: "player" });
         };
     };
     

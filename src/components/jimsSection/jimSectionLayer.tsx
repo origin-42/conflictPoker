@@ -1,10 +1,21 @@
 import { FC, useEffect } from 'react';
+import { BettingContextValues, useBettingContext } from '../../util/context/context/bettingContext';
 import { useDealerContext, DealerContextValues } from '../../util/context/context/dealerContext';
 import { Timer } from '../tableSection/Timer';
 
 export const JimsSectionLayer: FC = () => {
     const dealersInfo: DealerContextValues = useDealerContext();
-    const { dealerInfo, dealACard, restartGame, endGame, startGame } = dealersInfo;
+    const { dealerInfo, dealCards, restartGame, endGame, startGame } = dealersInfo;
+
+    const betInfo: BettingContextValues = useBettingContext();
+    const { bettingInfo, setBetInfo } = betInfo;
+
+    useEffect(() => {
+        if (bettingInfo.dealPhase === "roundStart")  {
+            dealCards(dealerInfo.deck_id, "players");
+            setBetInfo({ ...bettingInfo, dealPhase: "players" });
+        } 
+    }, [bettingInfo.dealPhase])
 
     let gameCycle;
     dealerInfo.timer? 
@@ -24,9 +35,7 @@ export const JimsSectionLayer: FC = () => {
                 </div>
             </section>
             <section>
-                <div className='flex flex-col items-start font-bold text-white'>
-                    <button className='hover:text-white' onClick={() => dealACard("f1wqxop85g4i", "jim")}>Deal a Card</button>
-                </div>
+                
             </section>
         </section>
     );

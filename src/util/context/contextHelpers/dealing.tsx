@@ -13,13 +13,14 @@ export const fetchNewDeck = async function (): Promise<NewDeck> {
 };
 
 // takes a string as a deck ID and returns NewDeck if the call to the API is successful
-export const takeNewCard = async function (deckId: string): Promise<NewCard> {
+export const takeNewCard = async function (deckId: string, numCardsToDeal: number): Promise<NewCard> {
     try {
-        const response: any = await fetch(`https://www.deckofcardsapi.com/api/deck/${deckId}/draw/`);
-    
+        const response: any = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${numCardsToDeal}`);
+      
         if (!response.ok) throw new Error(`Failed to retrieve card from deck ${deckId}: ${response.status} ${response.statusText}`);
-    
+        
         const data: NewCard = await response.json();
+        console.log(data)
         return data;
     } catch (error: any) {
         throw new Error(`Failed to retrieve card from deck ${deckId}: ${error.message}`);

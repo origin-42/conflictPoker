@@ -17,7 +17,8 @@ export const useDealerContext = () => {
   return context;
 };
 
-let dealACard: (deck_id: string, placement: string) => Promise<void>;
+let dealCards: (deck_id: string, placement: string) => Promise<void>;
+let dealToPlayers: (deck_id: string) => void;
 let shuffleTheDeck: (deck_id: string) => Promise<NewDeck>;
 let restartGame: (deck_id: string) => Promise<NewDeck>;
 let endGame: (deck_id: string) => void;
@@ -26,16 +27,18 @@ let startGame: () => Promise<NewDeck>;
 export interface DealerContextValues {
   dealerInfo: GameStart;
   setDealerInfo: React.Dispatch<React.SetStateAction<GameStart>>;
-  dealACard: (deck_id: string, placement: string) => void;
+  dealCards: (deck_id: string, placement: string) => void;
+  dealToPlayers: (deck_id: string) => void;
   shuffleTheDeck: (deck_id: string) => Promise<NewDeck>;
   restartGame: (deck_id: string) => Promise<NewDeck>;
   endGame: (deck_id: string) => void;
   startGame: () => Promise<NewDeck>;
 }
 
-const gameStart: GameStart = {
+export const gameStart: GameStart = {
   deck_id: '',
   playerTurn: '',
+  winner: '',
   timer: false,
   flop: [] as Card[],
   turn: [] as Card[],
@@ -51,21 +54,47 @@ export const DealerProvider: FC<any> = ({ children }) => {
     const bettingData: BettingContextValues = useBettingContext();
     const { bettingInfo, setBetInfo } = bettingData;
 
-    dealACard = async function (deck_id, placement) {
-      const newCard: NewCard = await takeNewCard(deck_id);
-      if (placement === 'jim' || placement === 'burn') newCard.cards[0].images.blank = cardBack;
-
-      if (placement === 'jim') return setDealerInfo({ ...dealerInfo, jimsHand: [...dealerInfo.jimsHand, ...newCard.cards] });
-      if (placement === 'player') return setDealerInfo({ ...dealerInfo, playerHand: [...dealerInfo.playerHand, ...newCard.cards] });
-      if (placement === 'flop') return setDealerInfo({ ...dealerInfo, flop: [...dealerInfo.flop, ...newCard.cards] });
-      if (placement === 'turn') return setDealerInfo({ ...dealerInfo, turn: [...newCard.cards] });
-      if (placement === 'river') return setDealerInfo({ ...dealerInfo, river: [...newCard.cards] });
-      if (placement === 'burn') return setDealerInfo({ ...dealerInfo, burn: [...newCard.cards] });
-    };
-
     useEffect(() => {
       console.log(dealerInfo)
     }, [dealerInfo])
+
+    dealCards = async function (deck_id, placement) {
+      let numCardsToDeal = 1; // default number of cards to deal
+    
+      // determine the number of cards to deal based on the placement
+      if (placement === 'players') {
+        numCardsToDeal = 4;
+      } else if (placement === 'flop') {
+        numCardsToDeal = 3;
+      }
+    
+      let newCard: NewCard = await takeNewCard(deck_id, numCardsToDeal);
+  
+      if (placement === 'players' || placement === 'burn') {
+        const removedCards = newCard.cards.splice(0, 2);
+        newCard.cards.forEach(card => {
+          card.images.blank = cardBack;
+        });
+        newCard.cards = [...newCard.cards, ...removedCards]
+      }
+    
+      if (placement === 'players') {
+        let jimsHand = [newCard.cards[0], newCard.cards[2]];
+        let playerHand = [newCard.cards[0], newCard.cards[2]];
+        
+        return setDealerInfo({ ...dealerInfo, jimsHand, playerHand });
+      } else if (placement === 'flop') {
+        return setDealerInfo({ ...dealerInfo, flop: [...newCard.cards] });
+      } else if (placement === 'turn') {
+        return setDealerInfo({ ...dealerInfo, turn: [...newCard.cards] });
+      } else if (placement === 'river') {
+        return setDealerInfo({ ...dealerInfo, river: [...newCard.cards] });
+      } else if (placement === 'burn') {
+        return setDealerInfo({ ...dealerInfo, burn: [...newCard.cards] });
+      } else {
+        console.log("invalid entry");
+      }
+    };
 
     shuffleTheDeck = async function (deck_id) {
       const shuffledDeck: NewDeck = await shuffleDeck(deck_id);
@@ -77,7 +106,7 @@ export const DealerProvider: FC<any> = ({ children }) => {
       const shuffledDeck: Promise<NewDeck> = shuffleTheDeck(deck_id);
 
       setDealerInfo({ ...gameStart, playerTurn, deck_id, timer: true });
-      setBetInfo({ ...bettingInfo, playerStack: 3000, jimsStack: 3000 });
+      setBetInfo({ ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" });
       
       return shuffledDeck;
     };
@@ -91,14 +120,14 @@ export const DealerProvider: FC<any> = ({ children }) => {
       const newDeck: NewDeck = await fetchNewDeck();
       const playerTurn = pullRandom(["player", "jim"]);
       const startGame = { ...gameStart, deck_id: newDeck.deck_id, playerTurn, timer: true };
-
-      setBetInfo({ ...bettingInfo, playerStack: 3000, jimsStack: 3000 });
+      setBetInfo({ ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" });
       setDealerInfo({ ...startGame });
       return newDeck;
     };
 
+
     return (
-        <DealerContext.Provider value={{ dealerInfo, setDealerInfo, dealACard, shuffleTheDeck, restartGame, endGame, startGame }}>
+        <DealerContext.Provider value={{ dealerInfo, setDealerInfo, dealCards, dealToPlayers, shuffleTheDeck, restartGame, endGame, startGame }}>
             {children}
         </DealerContext.Provider>
     );

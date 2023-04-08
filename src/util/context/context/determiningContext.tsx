@@ -1,8 +1,9 @@
-import React, { FC, createContext, useContext } from 'react';
+import React, { FC, createContext, useContext, useEffect } from 'react';
 
 import { Card } from '../contextTypes/contextTypes';
 import { getBestPokerHand, checkHighCard } from '../contextHelpers/pokerHands';
 import { useBettingContext } from "./bettingContext";
+import { useDealerContext } from './dealerContext';
 
 const DeterminingContext = createContext<DeterminingContextValues | null>(null);
 
@@ -30,6 +31,19 @@ export interface DeterminingContextValues {
 
 export const DeterminingProvider: FC<any> = ({ children }) => {
   const bettingContextInfo: any = useBettingContext();
+
+  const betInfo = useBettingContext();
+  const { bettingInfo } = betInfo;
+
+  const dealInfo = useDealerContext();
+  const { dealerInfo } = dealInfo;
+
+  // Make Jim make a move whenever the turn switches to him
+  useEffect(() => {
+    if (bettingInfo.playerMove === "jim") {
+      makeDecision(dealerInfo.jimsHand);
+    }
+  }, [bettingInfo]);
 
   determineByHighCard = function (playerHighCard: Card[], jimsHighCard: Card[]): string {
     for (let i = 0; i < playerHighCard.length; i++)
