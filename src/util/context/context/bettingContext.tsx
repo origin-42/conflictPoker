@@ -12,7 +12,7 @@ export const useBettingContext = () => {
     return context;
 };
 
-let setBlind: (button: string) => void;
+export let setBlind: (blinds: number) => void;
 let makeBet: (player: string, bet: number) => void;
 let makeRaise: (player: string, raise: number) => void;
 let call: (player: string) => void;
@@ -23,7 +23,7 @@ let fold: (winner: string) => void;
 export interface BettingContextValues {
     bettingInfo: RoundStart;
     setBetInfo: React.Dispatch<React.SetStateAction<RoundStart>>;
-    setBlind: (button: string) => void;
+    setBlind: (blinds: number) => void;
     makeBet: (player: string, bet: number) => void;
     makeRaise: (player: string, raise: number) => void;
     call: (player: string) => void;
@@ -34,13 +34,11 @@ export interface BettingContextValues {
 
 export const roundStart: RoundStart = {
     potSize: 0,
-    button: button,
+    buttonImg: button,
     playerMove: "",
     dealPhase: "",
     blindsLevel: 0,
     blinds: 0,
-    smallBlind: "",
-    bigBlind: "",
     interval: 0,
     playerBet: 0,
     playerRaise: 0,
@@ -56,26 +54,9 @@ export const BettingProvider: FC<any> = function ({ children }) {
     useEffect(() => {
         console.log(bettingInfo)
     }, [bettingInfo])
-
-    setBlind = function (button: string) {
-        // Sets the blind for each player
-        let bigBlind = bettingInfo.blinds;
-        let smallBlind = Math.ceil(bettingInfo.blinds / 2);
-        if (button === "player") {
-            makeBet("player", bigBlind);
-            makeBet("jim", smallBlind);
-            setBetInfo({ ...bettingInfo, smallBlind: "jim", bigBlind: "player" });
-            return;
-        };
-        
-        if (button === "jim") {
-            makeBet("player", smallBlind);
-            makeBet("jim", bigBlind);
-            setBetInfo({ ...bettingInfo, smallBlind: "player", bigBlind: "jim" });
-        };
-    };
     
     makeBet = function (player: string, bet: number) {
+        
         // A player makes a bet
         if (player === "player") {
             let allInOrBet = bettingInfo.playerStack <= bet? bettingInfo.playerStack: bet;
@@ -90,7 +71,7 @@ export const BettingProvider: FC<any> = function ({ children }) {
             const jimsBet = bettingInfo.jimsBet + allInOrBet;
             
             if (bettingInfo.jimsStack <= bet) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
-            else setBetInfo({ ...bettingInfo, jimsBet, playerMove: "player" });
+            else return setBetInfo({ ...bettingInfo, jimsBet, playerMove: "player" });
         };
     };
     

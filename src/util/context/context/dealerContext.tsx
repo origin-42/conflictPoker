@@ -37,7 +37,7 @@ export interface DealerContextValues {
 
 export const gameStart: GameStart = {
   deck_id: '',
-  playerTurn: '',
+  button: '',
   winner: '',
   timer: false,
   flop: [] as Card[],
@@ -102,10 +102,10 @@ export const DealerProvider: FC<any> = ({ children }) => {
     };
 
     restartGame = function (deck_id) {
-      const playerTurn = pullRandom(["player", "jim"]);
+      const button = pullRandom(["player", "jim"]);
       const shuffledDeck: Promise<NewDeck> = shuffleTheDeck(deck_id);
 
-      setDealerInfo({ ...gameStart, playerTurn, deck_id, timer: true });
+      setDealerInfo({ ...gameStart, button, deck_id, timer: true });
       setBetInfo({ ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" });
       
       return shuffledDeck;
@@ -118,8 +118,8 @@ export const DealerProvider: FC<any> = ({ children }) => {
 
     startGame = async function () {
       const newDeck: NewDeck = await fetchNewDeck();
-      const playerTurn = pullRandom(["player", "jim"]);
-      const startGame = { ...gameStart, deck_id: newDeck.deck_id, playerTurn, timer: true };
+      const button = pullRandom(["player", "jim"]);
+      const startGame = { ...gameStart, deck_id: newDeck.deck_id, button, timer: true };
       setBetInfo({ ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" });
       setDealerInfo({ ...startGame });
       return newDeck;

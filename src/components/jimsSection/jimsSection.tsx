@@ -4,7 +4,7 @@ import { JimsSectionLayer } from './jimSectionLayer';
 
 export const JimsSection: FC = () => {
     const dealersInfo: DealerContextValues = useDealerContext();
-    const { dealerInfo, setDealerInfo, dealACard, shuffleTheDeck, restartGame, startGame } = dealersInfo;
+    const { dealerInfo, setDealerInfo, dealCards, shuffleTheDeck, restartGame, startGame } = dealersInfo;
 
     return (
         <section id='jimsSection' className='relative bg-gray-200 h-3/10'>

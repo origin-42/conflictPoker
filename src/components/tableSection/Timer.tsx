@@ -8,7 +8,7 @@ export const Timer: React.FC = () => {
   const [totalTime, setTotalTime] = useState('00:00:00');
   const bettingContextInfo = useBettingContext();
   const dealingContextInfo = useDealerContext();
-  const { bettingInfo, setBetInfo } = bettingContextInfo;
+  const { bettingInfo, setBetInfo, setBlind } = bettingContextInfo;
   const { dealerInfo, setDealerInfo } = dealingContextInfo;
 
   // Setup incrementation ffor blinds amount and blinds level to be provided to user and game state.
@@ -18,6 +18,10 @@ export const Timer: React.FC = () => {
   useEffect(() => {
     const currentBlindsLevel = Math.floor(seconds / 600); // 10 minutes in seconds
     const currentBlinds = BLINDS_AMOUNTS[currentBlindsLevel];
+
+    if (dealerInfo.timer && bettingInfo.blinds < 50) {
+      setBetInfo({ ...bettingInfo, blinds: 50 });
+    }
 
     if (bettingInfo.blindsLevel !== currentBlindsLevel && currentBlindsLevel <= MAX_BLINDS_LEVEL) {
       setBetInfo({ ...bettingInfo, blinds: currentBlinds, blindsLevel: currentBlindsLevel });

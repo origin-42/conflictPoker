@@ -23,8 +23,8 @@ export const CardsLayer: FC = () => {
             <div></div>
             <div></div>
             <div className='flex justify-center gap-2'>
-                {dealerInfo.playerTurn === "jim" && (
-                    <img className='w-1/3 object-contain' src={bettingInfo.button} alt={`button`}></img>
+                {dealerInfo.button === "jim" && (
+                    <img className='w-1/3 object-contain' src={bettingInfo.buttonImg} alt={`button`}></img>
                 )}
                 {cards.jimsHand.map(card => (
                     <img className='w-1/3 object-contain' src={card.images.blank} alt={`${card.suit} ${card.value}`} key={card.code}></img>
@@ -57,8 +57,8 @@ export const CardsLayer: FC = () => {
             <div></div>
             <div></div>
             <div className='flex justify-center gap-2'>
-                {cards.playerTurn === "player" && (
-                    <img className='w-1/3 object-contain' src={bettingInfo.button} alt={`button`}></img>
+                {cards.button === "player" && (
+                    <img className='w-1/3 object-contain' src={bettingInfo.buttonImg} alt={`button`}></img>
                 )}
                 {cards.playerHand.map(card => (
                     <img className='w-1/3 object-contain' src={card.images.png} alt={`${card.suit} ${card.value}`} key={card.code}></img>

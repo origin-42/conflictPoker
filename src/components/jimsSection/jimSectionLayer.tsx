@@ -10,11 +10,12 @@ export const JimsSectionLayer: FC = () => {
     const betInfo: BettingContextValues = useBettingContext();
     const { bettingInfo, setBetInfo } = betInfo;
 
+    // Rotate phases
     useEffect(() => {
-        if (bettingInfo.dealPhase === "roundStart")  {
-            dealCards(dealerInfo.deck_id, "players");
-            setBetInfo({ ...bettingInfo, dealPhase: "players" });
-        } 
+        if (bettingInfo.dealPhase === "playerPhase") dealCards(dealerInfo.deck_id, "players");
+        else if (bettingInfo.dealPhase === "flop") dealCards(dealerInfo.deck_id, "flop");
+        else if (bettingInfo.dealPhase === "turn") dealCards(dealerInfo.deck_id, "turn");
+        else if (bettingInfo.dealPhase === "river") dealCards(dealerInfo.deck_id, "river");
     }, [bettingInfo.dealPhase])
 
     let gameCycle;

@@ -117,7 +117,7 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
       let previousPlayerRaise = 0;
     
       if (playerChecks) {
-        if (odds >= 50) makeRaise("jim", bettingInfo.bigBlind);
+        if (odds >= 50) makeRaise("jim", bettingInfo.blinds);
         else if (odds >= 60) call("jim", 0);
         else if (odds >= 70) makeBet("jim", playerBet * 2);
         else if (odds >= 80) makeBet("jim", playerBet * 5);
