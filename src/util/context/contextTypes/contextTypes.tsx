@@ -28,7 +28,7 @@ export interface Card {
 export interface GameStart {
     deck_id: string;
     button: string;
-    winner: string;
+    gameWinner: string;
     timer: boolean;
     flop: Card[];
     turn: Card[];
@@ -40,11 +40,12 @@ export interface GameStart {
 export interface RoundStart {
     potSize: number;
     blinds: number;
+    roundWinner: string;
     playerMove: string;
     buttonImg: string;
+    betting: boolean;
     dealPhase: string;
     blindsLevel: number;
-    interval: number;
     playerBet: number;
     playerRaise: number;
     playerStack: number;

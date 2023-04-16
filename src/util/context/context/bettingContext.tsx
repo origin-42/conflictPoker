@@ -15,10 +15,11 @@ export const useBettingContext = () => {
 export let setBlind: (blinds: number) => void;
 let makeBet: (player: string, bet: number) => void;
 let makeRaise: (player: string, raise: number) => void;
-let call: (player: string) => void;
+let call: (player: string, check: boolean) => void;
 let addToPot: () => void;
-let dispersePot: (winner: string) => void;
-let fold: (winner: string) => void;
+let dispersePot: () => void;
+let fold: (player: string) => void;
+let check: (player: string) => void;
 
 export interface BettingContextValues {
     bettingInfo: RoundStart;
@@ -26,20 +27,22 @@ export interface BettingContextValues {
     setBlind: (blinds: number) => void;
     makeBet: (player: string, bet: number) => void;
     makeRaise: (player: string, raise: number) => void;
-    call: (player: string) => void;
+    call: (player: string, check: boolean) => void;
     addToPot: () => void;
-    dispersePot: (winner: string) => void;
-    fold: (winner: string) => void;
+    dispersePot: () => void;
+    fold: (player: string) => void;
+    check: (player: string) => void;
 }
 
 export const roundStart: RoundStart = {
     potSize: 0,
     buttonImg: button,
+    roundWinner: "",
     playerMove: "",
     dealPhase: "",
+    betting: false,
     blindsLevel: 0,
     blinds: 0,
-    interval: 0,
     playerBet: 0,
     playerRaise: 0,
     playerStack: 0,
@@ -51,103 +54,132 @@ export const roundStart: RoundStart = {
 export const BettingProvider: FC<any> = function ({ children }) {
     const [bettingInfo, setBetInfo] = useState<RoundStart>(roundStart);
 
-    useEffect(() => {
-        console.log(bettingInfo)
-    }, [bettingInfo])
+    // useEffect(() => {
+    //     console.log(bettingInfo);
+    // }, [bettingInfo])
     
     makeBet = function (player: string, bet: number) {
         
         // A player makes a bet
         if (player === "player") {
-            let allInOrBet = bettingInfo.playerStack <= bet? bettingInfo.playerStack: bet;
-            const playerBet = bettingInfo.playerBet + allInOrBet;
-            
-            if (bettingInfo.playerStack <= bet) return setBetInfo({ ...bettingInfo, playerStack: 0, playerMove: "jim" });
-            else return setBetInfo({ ...bettingInfo, playerBet, playerMove: "jim" });
+            let playerBet = bettingInfo.playerStack <= bet? bettingInfo.playerStack: bet;
+            let playerStack = bettingInfo.playerStack - playerBet;
+
+            const changes = { playerBet, playerStack, playerMove: "jim" };
+          
+            return setBetInfo({ ...bettingInfo, ...changes });
         };
         
         if (player === "jim") {
-            let allInOrBet = bettingInfo.jimsStack <= bet? bettingInfo.jimsStack: bet;
-            const jimsBet = bettingInfo.jimsBet + allInOrBet;
+            let jimsBet = bettingInfo.jimsStack <= bet? bettingInfo.jimsStack: bet;
+            let jimsStack = bettingInfo.jimsStack - jimsBet;
+
+            const changes = { jimsBet, jimsStack, playerMove: "player" };
             
-            if (bettingInfo.jimsStack <= bet) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
-            else return setBetInfo({ ...bettingInfo, jimsBet, playerMove: "player" });
+            return setBetInfo({ ...bettingInfo, ...changes });
         };
     };
     
     makeRaise = function (player: string, raise: number) {
         // A player raises a bet
         if (player === "player") {
-            let allInOrRaise = bettingInfo.playerStack <= raise? bettingInfo.playerStack: raise;
-            let playerRaise = bettingInfo.playerBet + allInOrRaise;
-            
-            if (bettingInfo.jimsStack <= raise) return setBetInfo({ ...bettingInfo, playerStack: 0, playerMove: "jim" });
-            else return setBetInfo({ ...bettingInfo, playerRaise, playerBet: 0, playerMove: "jim" });
+            let totalRaise = raise + bettingInfo.playerBet;
+            let playerBet = 0;
+            if (totalRaise === bettingInfo.playerStack) {
+                return call("player", false);
+            }
+
+            let playerRaise = bettingInfo.playerStack <= totalRaise? bettingInfo.playerStack: totalRaise;
+            let playerStack = bettingInfo.playerStack - playerRaise;
+
+            const changes = { playerBet, playerRaise, playerStack, playerMove: "jim" };
+         
+            return setBetInfo({ ...bettingInfo, ...changes });
         };
         
         if (player === "jim") {
-            let allInOrRaise = bettingInfo.jimsStack <= raise? bettingInfo.jimsStack: raise;
-            let jimsRaise = bettingInfo.jimsBet + allInOrRaise;
-            
-            if (bettingInfo.jimsStack <= raise) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
-            else setBetInfo({ ...bettingInfo, jimsRaise, jimsBet: 0, playerMove: "player" });
+            let totalRaise = raise + bettingInfo.jimsBet;
+            let jimsBet = 0;
+            if (totalRaise === bettingInfo.jimsStack) {
+                return call("jim", false);
+            }
+
+            let jimsRaise = bettingInfo.jimsStack <= totalRaise? bettingInfo.jimsStack: totalRaise;
+            let jimsStack = bettingInfo.jimsStack - jimsRaise;
+
+            const changes = { jimsBet, jimsRaise, jimsStack, playerMove: "player" }
+         
+            return setBetInfo({ ...bettingInfo, ...changes });
         };
     };
     
     call = function (player: string) {
         // A Player Calls another players bet
         if (player === "player") {
-            let playerTotalStack = bettingInfo.playerStack + bettingInfo.playerBet + bettingInfo.playerRaise;
-            let jimsTotalStack = bettingInfo.jimsStack + bettingInfo.jimsBet + bettingInfo.jimsRaise;
-            let isAllIn = playerTotalStack <= jimsTotalStack;
+            let jimsBet = bettingInfo.jimsBet + bettingInfo.jimsRaise;
 
-            let call = isAllIn? playerTotalStack: bettingInfo.jimsRaise + bettingInfo.jimsBet;
-            
-            if (isAllIn) return setBetInfo({ ...bettingInfo, playerStack: 0, playerMove: "jim" });
-            else return setBetInfo({ ...bettingInfo, playerBet: call | call, playerRaise: 0, playerMove: "jim" });
+            let playerBet = bettingInfo.playerStack <= jimsBet? bettingInfo.playerStack: jimsBet;
+            let playerRaise = 0;
+            let playerStack = bettingInfo.playerStack - playerBet;
+
+            const changes = { playerBet, playerRaise, playerStack, playerMove: "jim" };
+
+            return setBetInfo({ ...bettingInfo, ...changes });
         };
-        
+
         if (player === "jim") {
-            let playerTotalStack = bettingInfo.playerStack + bettingInfo.playerBet + bettingInfo.playerRaise;
-            let jimsTotalStack = bettingInfo.jimsStack + bettingInfo.jimsBet + bettingInfo.jimsRaise;
-            let isAllIn = jimsTotalStack <= playerTotalStack;
+            let playerBet = bettingInfo.playerBet + bettingInfo.playerRaise;
 
-            let call = isAllIn? jimsTotalStack: bettingInfo.playerRaise + bettingInfo.playerBet;
-            
-            if (isAllIn) return setBetInfo({ ...bettingInfo, jimsStack: 0, playerMove: "player" });
-            else setBetInfo({ ...bettingInfo, jimsBet: call, jimsRaise: 0, playerMove: "player" });
+            let jimsBet = bettingInfo.jimsStack <= playerBet? bettingInfo.jimsStack: playerBet;
+            let jimsRaise = 0;
+            let jimsStack = bettingInfo.jimsStack - jimsBet;
+
+            const changes = { jimsBet, jimsRaise, jimsStack, playerMove: "player" };
+
+            return setBetInfo({ ...bettingInfo, ...changes });
         };
+    };
+
+    check = function (player: string) {
+        if (player === "player") setBetInfo({ ...bettingInfo, playerMove: "jim" });
+        else setBetInfo({ ...bettingInfo, playerMove: "player" });
+    };
+
+    fold = function (player: string) {
+        // A player folds their hand
+        // Push remaining chips in play to the pot, send those chips to the winner, then reset the round
+        addToPot();
+        dispersePot();
+
+        const roundStart = { ...bettingInfo, dealPhase: "roundStart", playerMove: "" };
+        setBetInfo({ ...roundStart });
     };
     
     addToPot = function () {
         // The dealer commits all bets to the pot
-        let totalPot: number = bettingInfo.playerBet + bettingInfo.playerRaise + bettingInfo.jimsBet + bettingInfo.jimsRaise;
-        let playerStack: number = bettingInfo.playerStack - (bettingInfo.playerBet + bettingInfo.playerRaise);
-        let jimsStack: number = bettingInfo.jimsStack - (bettingInfo.jimsBet + bettingInfo.jimsRaise);
-        setBetInfo({ ...bettingInfo, potSize: totalPot, playerBet: 0, playerRaise: 0, jimsBet: 0, jimsRaise: 0, playerStack, jimsStack });
+        let potSize: number = bettingInfo.playerBet + bettingInfo.playerRaise + bettingInfo.jimsBet + bettingInfo.jimsRaise;
+
+        const changes = { potSize, playerBet: 0, playerRaise: 0, jimsBet: 0, jimsRaise: 0, betting: false, playerMove: "" };
+
+        setBetInfo({ ...bettingInfo, ...changes });
     };
     
-    dispersePot = function (winner) {
+    dispersePot = function () {
         // The dealer disperses the pot to one or both players on a draw
-        if (winner === "draw") {
+        if (bettingInfo.roundWinner === "draw") {
             let drawings = bettingInfo.potSize / 2;
             return setBetInfo({ ...bettingInfo, playerStack: drawings, jimsStack: drawings });
         };
 
-        if (winner === "player") return setBetInfo({ ...bettingInfo, playerStack: bettingInfo.potSize });
-        if (winner === "jim") return setBetInfo({ ...bettingInfo, jimsStack: bettingInfo.potSize });
+        if (bettingInfo.roundWinner === "player") return setBetInfo({ ...bettingInfo, playerStack: bettingInfo.potSize });
+        if (bettingInfo.roundWinner === "jim") return setBetInfo({ ...bettingInfo, jimsStack: bettingInfo.potSize });
 
         setBetInfo({ ...bettingInfo, potSize: 0 });
     };
-    
-    fold = function (winner: string) {
-        // A player folds their hand
-        addToPot();
-        dispersePot(winner);
-    };
+
 
     return (
-      <BettingContext.Provider value={{ bettingInfo, setBetInfo, setBlind, makeBet, makeRaise, call, addToPot, dispersePot, fold }}>
+      <BettingContext.Provider value={{ bettingInfo, setBetInfo, setBlind, makeBet, makeRaise, call, addToPot, dispersePot, fold, check }}>
         {children}
       </BettingContext.Provider>
     );

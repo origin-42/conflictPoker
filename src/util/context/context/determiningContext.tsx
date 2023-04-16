@@ -16,14 +16,14 @@ export const useDeterminingContext = () => {
 };
 
 let determineByHighCard: (playerHighCard: Card[], jimsHighCard: Card[]) => string;
-let compareHands: (playerHighCard: Card[], jimsHighCard: Card[]) => string;
+let compareHands: (playerHighCard: Card[], jimsHighCard: Card[]) => void;
 let calculateOdds: (cards: Card[]) => number;
 let getRemainingCards: (cards: Card[]) => Card[];
 let makeDecision: (cards: Card[]) => void;
 
 export interface DeterminingContextValues {
   determineByHighCard: (playerHighCard: Card[], jimsHighCard: Card[]) => string;
-  compareHands: (playerHighCard: Card[], jimsHighCard: Card[]) => string;
+  compareHands: (playerHighCard: Card[], jimsHighCard: Card[]) => void;
   calculateOdds: (cards: Card[]) => number;
   getRemainingCards: (cards: Card[]) => Card[];
   makeDecision: (cards: Card[]) => void;
@@ -31,17 +31,17 @@ export interface DeterminingContextValues {
 
 export const DeterminingProvider: FC<any> = ({ children }) => {
   const bettingContextInfo: any = useBettingContext();
-
-  const betInfo = useBettingContext();
-  const { bettingInfo } = betInfo;
+  const { bettingInfo, setBetInfo, makeRaise, makeBet, call, check, fold } = bettingContextInfo;
 
   const dealInfo = useDealerContext();
   const { dealerInfo } = dealInfo;
 
   // Make Jim make a move whenever the turn switches to him
   useEffect(() => {
-    if (bettingInfo.playerMove === "jim") {
-      makeDecision(dealerInfo.jimsHand);
+    if (bettingInfo.playerMove === "jim" && bettingInfo.dealPhase === "betting") {
+      setTimeout(() => {
+        makeDecision(dealerInfo.jimsHand);
+      }, 1000);
     }
   }, [bettingInfo]);
 
@@ -54,17 +54,17 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
   };
 
   // Compare hands to decide a winner
-  compareHands = function (playerHand: Card[], jimsHand: Card[]): string {
-    const playerHandValue: number = getBestPokerHand(playerHand);
-    const playerHighCard: Card[] = checkHighCard(playerHand);
-    const jimHandValue: number = getBestPokerHand(jimsHand);
-    const jimsHighCard: Card[] = checkHighCard(jimsHand);
+  compareHands = function () {
+    const playerHandValue: number = getBestPokerHand(dealerInfo.playerHand);
+    const playerHighCard: Card[] = checkHighCard(dealerInfo.playerHand);
+    const jimHandValue: number = getBestPokerHand(dealerInfo.jimsHand);
+    const jimsHighCard: Card[] = checkHighCard(dealerInfo.jimsHand);
 
     if (playerHandValue === jimHandValue) return determineByHighCard(playerHighCard, jimsHighCard);
 
-    let winner = playerHandValue > jimHandValue? "jim":"player";
+    let roundWinner = playerHandValue > jimHandValue? "jim":"player";
 
-    return winner;
+    setBetInfo({ ...bettingInfo, roundWinner });
   }; 
 
   // Calculate the odds of winning based on your hand.
@@ -106,50 +106,89 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
 
   // Make Jim make a decision of whether the check, raise or bet.
   makeDecision = function (cards: Card[]) {
-    // calculate odds of winning with current hand as a percentage.
-    const { bettingInfo, makeBet, makeRaise, call, fold } = bettingContextInfo;
-      const { playerBet, playerRaise, jimsBet } = bettingInfo;
+      console.log("JIMS MAKIN A MOVE")
+      // calculate odds of winning with current hand as a percentage.
+      const { playerBet, playerRaise, jimsBet, jimsRaise, potSize, blinds } = bettingInfo;
       const odds = calculateOdds(cards);
-    
-      const playerChecks = playerBet === 0 && playerRaise === 0;
-      const playerBets = playerBet > 0 && playerRaise === 0;
+
+      const firstToAct = playerBet + playerRaise === 0 && !jimsRaise && !jimsBet || playerBet + playerRaise === blinds;
+      const playerChecks = playerBet + playerRaise === 0;
+      const preFLop = !potSize;
+      const playerBets = playerBet > 0;
       const playerRaises = playerRaise > 0;
       let previousPlayerRaise = 0;
     
-      if (playerChecks) {
-        if (odds >= 50) makeRaise("jim", bettingInfo.blinds);
-        else if (odds >= 60) call("jim", 0);
-        else if (odds >= 70) makeBet("jim", playerBet * 2);
-        else if (odds >= 80) makeBet("jim", playerBet * 5);
-        else if (odds >= 90) call("jim", 0);
-        else call("jim", 0);
+      if (firstToAct) {
+        if (preFLop) { 
+          if (odds >= 50) makeRaise("jim", bettingInfo.blinds + jimsBet);
+          else if (odds >= 60) check("jim"); 
+          else if (odds >= 70) makeRaise("jim", playerBet * 2);
+          else if (odds >= 80) makeRaise("jim", playerBet * 5);
+          else if (odds >= 90) check("jim"); 
+          else check("jim"); 
+
+        } else {
+          if (odds >= 50) makeBet("jim", bettingInfo.blinds + playerBet);
+          else if (odds >= 60) call("jim"); 
+          else if (odds >= 70) makeBet("jim", playerBet * 2);
+          else if (odds >= 80) makeBet("jim", playerBet * 5);
+          else if (odds >= 90) call("jim"); 
+          else call("jim"); 
+        };
+
+        return;
+      }
+      
+      if (playerChecks) { 
+        if (preFLop) {
+          if (odds >= 50) makeRaise("jim", bettingInfo.blinds + jimsBet);
+          else if (odds >= 60) check("jim"); 
+          else if (odds >= 70) makeRaise("jim", playerBet * 2);
+          else if (odds >= 80) makeRaise("jim", playerBet * 5);
+          else if (odds >= 90) check("jim"); 
+          else check("jim"); 
+
+        } else {
+          if (odds >= 50) makeBet("jim", bettingInfo.blinds + playerBet);
+          else if (odds >= 60) call("jim"); 
+          else if (odds >= 70) makeBet("jim", playerBet * 2);
+          else if (odds >= 80) makeBet("jim", playerBet * 5);
+          else if (odds >= 90) call("jim"); 
+          else call("jim"); 
+        };
 
       } else if (playerBets) {
-        if (odds >= 50) fold("player");
-        else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim", playerBet + playerRaise);
-        else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim", playerBet + playerRaise);
-        else if (odds >= 80 && playerBet + playerRaise <= jimsBet * 10) call("jim", playerBet + playerRaise);
-        else if (odds >= 90 && playerBet + playerRaise <= jimsBet * 2) call("jim", playerBet + playerRaise);
-        else call("jim", 0);
-        previousPlayerRaise = playerBet;
+        if (playerBet === jimsBet + jimsRaise) {
+
+
+        } else {
+          if (odds >= 50) fold("player");
+          else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim");
+          else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim");
+          else if (odds >= 80 && playerBet + playerRaise <= jimsBet * 10) call("jim");
+          else if (odds >= 90 && playerBet + playerRaise <= jimsBet * 2) call("jim");
+          else call("jim");
+          previousPlayerRaise = playerBet;
+        }
 
       } else if (playerRaises) {
         if (odds >= 50) fold("player");
-        else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim", playerBet + playerRaise);
-        else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim", playerBet + playerRaise);
-        else if (odds >= 80 && playerBet + playerRaise <= jimsBet * 10) call("jim", playerBet + playerRaise);
+        else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim");
+        else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim");
+        else if (odds >= 80 && playerBet + playerRaise <= jimsBet * 10) call("jim");
         else if (odds >= 90) makeRaise(playerBet + playerRaise * 2);
-        else call("jim", 0);
+        else call("jim");
         previousPlayerRaise = playerRaise;
 
       } else if (jimsBet === previousPlayerRaise && playerRaise > previousPlayerRaise) {
         if (odds >= 50) fold("player");
-        else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim", playerBet + playerRaise);
-        else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim", playerBet + playerRaise);
-        else if (odds >= 80 && playerBet + playerRaise <= jimsBet * 10) call("jim", playerBet + playerRaise);
+        else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim");
+        else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim");
+        else if (odds >= 80 && playerBet + playerRaise <= jimsBet * 10) call("jim");
         else if (odds >= 90) makeRaise(playerBet + playerRaise * 2);
-        else call("jim", 0);
+        else call("jim");
     };
+    
   };
   
 

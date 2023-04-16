@@ -14,8 +14,8 @@ export const CardsLayer: FC = () => {
     const { bettingInfo } = bettingData;
 
     useEffect(() => {
-        setCards(dealerInfo)
-    }, [dealerInfo])
+        setCards(dealerInfo);
+    }, [dealerInfo]);
 
     return (
         <section id='cardsSection' className='absolute grid grid-cols-7 grid-rows-3 h-full justify-between gap-4'>

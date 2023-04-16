@@ -48,10 +48,10 @@ export const ChipsLayer: FC = () => {
 
 
     return (
-        <section id='tableSection' className='absolute grid grid-cols-7 grid-rows-3 h-full justify-between gap-4'>
+        <section id='chipsSection' className='absolute grid grid-cols-7 grid-rows-3 h-full justify-between gap-4'>
             <div></div>
             <div id='jimsStack' className="relative w-full h-full">
-                {chipValues.jimsStack? <img src={chipValues.jimsStack} alt='Jims Stack' className='w-full h-full object-cover'></img>: <div></div>}
+                {chipValues.jimsStack? <img src={chipValues.jimsStack} alt='Jims Stack' className='w-full h-full'></img>: <div></div>}
                 {bettingInfo.jimsStack? (
                     <div className="absolute inset-0 flex items-end justify-center">
                         <div className="bg-white px-4 py-2 rounded-lg">
@@ -63,7 +63,7 @@ export const ChipsLayer: FC = () => {
             <div></div>
             <div></div>
             <div id='jimsBet' className="relative w-full h-full">
-                {chipValues.jim? <img src={chipValues.jim} alt='jims Bet or Raise' className='w-full h-full object-cover'></img>: <div></div>}
+                {chipValues.jim? <img src={chipValues.jim} alt='jims Bet or Raise' className='w-full h-full'></img>: <div></div>}
                 {bettingInfo.jimsBet || bettingInfo.jimsRaise? (
                     <div className="absolute inset-0 flex items-end justify-center">
                         <div className="bg-white px-4 py-2 rounded-lg">
@@ -80,7 +80,7 @@ export const ChipsLayer: FC = () => {
             <div></div>
             <div></div>
             <div id='currentPot' className="relative w-full h-full">
-                {chipValues.pot? <img src={chipValues.pot} alt='The current pot' className='w-full h-full object-cover'></img>: <div></div>}
+                {chipValues.pot? <img src={chipValues.pot} alt='The current pot' className='w-full h-full'></img>: <div></div>}
                 {bettingInfo.potSize? (
                     <div className="absolute inset-0 flex items-end justify-center">
                         <div className="bg-white px-4 py-2 rounded-lg">
@@ -92,7 +92,7 @@ export const ChipsLayer: FC = () => {
             <div></div>
             <div></div>
             <div id='yourStack' className="relative w-full h-full">
-                {chipValues.playerStack? <img src={chipValues.playerStack} alt='Your stack' className='w-full h-full object-cover'></img>: <div></div>}
+                {chipValues.playerStack? <img src={chipValues.playerStack} alt='Your stack' className='w-full h-full'></img>: <div></div>}
                 {bettingInfo.playerStack? (
                     <div className="absolute inset-0 flex items-end justify-center">
                         <div className="bg-white px-4 py-2 rounded-lg">
@@ -105,7 +105,7 @@ export const ChipsLayer: FC = () => {
             <div></div>
             <div></div>
             <div id='yourBet' className="relative w-full h-full">
-                {chipValues.player? <img src={chipValues.player} alt='Your bet or raise' className='w-full h-full object-cover'></img>: <div></div>}
+                {chipValues.player? <img src={chipValues.player} alt='Your bet or raise' className='w-full h-full'></img>: <div></div>}
                 {bettingInfo.playerRaise || bettingInfo.playerBet ? (
                     <div className="absolute inset-0 flex items-end justify-center">
                         <div className="bg-white px-4 py-2 rounded-lg">
