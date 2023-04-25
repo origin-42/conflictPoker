@@ -18,7 +18,7 @@ let makeRaise: (player: string, raise: number) => void;
 let call: (player: string, check: boolean) => void;
 let addToPot: () => void;
 let dispersePot: () => void;
-let fold: (player: string) => void;
+let fold: () => void;
 let check: () => void;
 
 export interface BettingContextValues {
@@ -30,7 +30,7 @@ export interface BettingContextValues {
     call: (player: string, check: boolean) => void;
     addToPot: () => void;
     dispersePot: () => void;
-    fold: (player: string) => void;
+    fold: () => void;
     check: () => void;
 }
 
@@ -78,7 +78,8 @@ export const BettingProvider: FC<any> = function ({ children }) {
         setBetInfo({ 
             ...bettingInfo, 
             playerMove,
-            playerActions: updatedPlayerActions
+            playerActions: updatedPlayerActions,
+            action: ""
         });
     }, [bettingInfo.action]);
     
@@ -197,7 +198,7 @@ export const BettingProvider: FC<any> = function ({ children }) {
         setBetInfo({ ...bettingInfo, action: "check" });
     };
 
-    fold = function (player: string) {
+    fold = function () {
         // A player folds their hand
         // Push remaining chips in play to the pot, send those chips to the winner, then reset the round
         addToPot();

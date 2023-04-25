@@ -52,7 +52,7 @@ export const PlayerActions = () => {
                         {playerCanCall && <button className='bg-white px-4 py-2 rounded' onClick={() => call("player", false)}>Call {jimsTotal}{playerAllIn && ", all in!"}</button>}
 
                         {/* Fold Cards */}
-                        <button className='bg-white px-4 py-2 rounded' onClick={() => fold("jim")}>Fold</button>
+                        <button className='bg-white px-4 py-2 rounded' onClick={() => fold()}>Fold</button>
                     </>
                 )}
                 

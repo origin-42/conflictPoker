@@ -1,4 +1,4 @@
-import React, { FC, createContext, useContext, useEffect } from 'react';
+import React, { FC, createContext, useContext, useEffect, useState } from 'react';
 
 import { Card, PlayerAction } from '../contextTypes/contextTypes';
 import { getBestPokerHand, checkHighCard } from '../contextHelpers/pokerHands';
@@ -16,24 +16,27 @@ export const useDeterminingContext = () => {
 };
 
 let determineByHighCard: (playerHighCard: Card[], jimsHighCard: Card[]) => string;
-let compareHands: (playerHighCard: Card[], jimsHighCard: Card[]) => void;
+let compareHands: () => void;
 let calculateOdds: (cards: Card[]) => number;
 let getRemainingCards: (cards: Card[]) => Card[];
 let makeDecision: (cards: Card[]) => void;
 
 export interface DeterminingContextValues {
   determineByHighCard: (playerHighCard: Card[], jimsHighCard: Card[]) => string;
-  compareHands: (playerHighCard: Card[], jimsHighCard: Card[]) => void;
+  compareHands: () => void;
   calculateOdds: (cards: Card[]) => number;
   getRemainingCards: (cards: Card[]) => Card[];
   makeDecision: (cards: Card[]) => void;
 }
 
 export const DeterminingProvider: FC<any> = ({ children }) => {
-  const bettingContextInfo: any = useBettingContext();
-  const { bettingInfo, setBetInfo, makeRaise, makeBet, call, check, fold } = bettingContextInfo;
 
-  const { dealerInfo } = useDealerContext();
+  const bettingContextInfo: any = useBettingContext();
+  const { bettingInfo, setBetInfo, makeRaise, makeBet, call, check, fold, addToPot, playerActions, river } = bettingContextInfo;
+  const { playerBet, playerRaise, playerStack, jimsBet, jimsRaise, jimsStack, blinds, potSize } = bettingInfo;
+
+  const { dealerInfo, setDealerInfo } = useDealerContext();
+  const { flop } = dealerInfo;
 
   // Make Jim make a move whenever the turn switches to him
   useEffect(() => {
@@ -44,6 +47,42 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
       }, 1000);
     }
   }, [bettingInfo.dealPhase, bettingInfo.playerMove]);
+
+  // Determine a round winner
+  useEffect(() => {
+    const playerFolded = playerActions.filter((player: PlayerAction) => player.action === "fold");
+    
+    if (!!playerFolded) {
+      let roundWinner =  playerFolded.player === "jim"?"player":"jim";
+      console.log(`${playerFolded.player} folded`);
+      setBetInfo({ ...bettingInfo, roundWinner });
+      return;
+    };
+
+    if (!!river[1]) {
+      const playerCalled = playerActions.filter((player: PlayerAction) => player.action === "call");
+      const bothChecked = playerActions.filter((player: PlayerAction) => player.action === "check");
+      const betCalled = playerCalled && playerBet > 0 || playerCalled && jimsBet > 0;
+      const raiseCalled = playerCalled && playerRaise > 0 || playerCalled && jimsRaise > 0;
+      const allInCalled = betCalled && playerStack === 0 || betCalled && jimsStack === 0;
+
+      if (allInCalled) compareHands();
+      else if (!!bothChecked) compareHands();
+      else if (betCalled) compareHands();
+      else if (raiseCalled) compareHands();
+      else return;
+    };
+    
+  }, [playerActions]);
+
+  // Determine game winner
+  useEffect(() => {
+    if (potSize === 0) {
+      if (playerBet+playerRaise+playerStack === 0) setDealerInfo({ ...dealerInfo, gameWinner: "jim" });
+      if (jimsBet+jimsRaise+jimsStack === 0) setDealerInfo({ ...dealerInfo, gameWinner: "player" });
+    };
+  }, [playerStack, jimsStack]);
+  
 
   determineByHighCard = function (playerHighCard: Card[], jimsHighCard: Card[]): string {
     for (let i = 0; i < playerHighCard.length; i++)
@@ -108,8 +147,6 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
   makeDecision = function (cards: Card[]) {
       
       // calculate odds of winning with current hand as a percentage.
-      const { playerBet, playerRaise, jimsBet, jimsRaise, blinds, playerActions } = bettingInfo;
-      const { flop } = dealerInfo;
       const odds = calculateOdds(cards);
 
       let currentBlinds = blinds;
@@ -123,7 +160,7 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
 
       if (playerCalls && playerBet !== currentBlinds) {
         console.log("Player calls bet or raise")
-        return setBetInfo({ ...bettingInfo, betting: false });
+        return addToPot();
       };
 
       if (firstToAct) {
