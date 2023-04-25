@@ -1,9 +1,17 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import Draggable, {DraggableCore} from 'react-draggable'; 
 import { useBettingContext } from '../../util/context/context/bettingContext';
 import { useDealerContext } from '../../util/context/context/dealerContext';
 
+const playStateSchema = {
+    dealPreFlop: false,
+    dealFlop: false,
+    dealTurn: false,
+    dealRiver: false
+};
+
 export const DealerActions: React.FC = function () {
+    const [playState, setPlayState] = useState(playStateSchema);
     const nodeRef = React.useRef(null);
 
     const bettingData = useBettingContext();
@@ -11,7 +19,14 @@ export const DealerActions: React.FC = function () {
     const { dealPhase, blinds, betting } = bettingInfo;
 
     const { dealerInfo } = useDealerContext();
-    const { playerHand, flop, turn, river, button } = dealerInfo;
+    const { jimsHand, button } = dealerInfo;
+
+    useEffect(() => {
+        if (!dealerInfo.jimsHand[0]) setPlayState({ ...playStateSchema, dealPreFlop: true });
+        else if (!dealerInfo.flop[0]) setPlayState({ ...playStateSchema, dealFlop: true });
+        else if (!dealerInfo.turn[0]) setPlayState({ ...playStateSchema, dealTurn: true });
+        else if (!dealerInfo.river[0]) setPlayState({ ...playStateSchema, dealRiver: true });
+    }, [dealerInfo.jimsHand, dealerInfo.flop, dealerInfo.turn, dealerInfo.river]);
 
     const startRound = (dealPhase: string) => {
         const players = ["player", "jim"];
@@ -33,6 +48,7 @@ export const DealerActions: React.FC = function () {
         setBetInfo({ ...bettingInfo, dealPhase, playerBet, jimsBet, betting: true });
     }
 
+    
     return (
         <div className="flex justify-center z-10 font-bold">
             <div>
@@ -65,25 +81,25 @@ export const DealerActions: React.FC = function () {
                             )}
 
                             
-                            {dealPhase === "roundStart" && river.length === 0 && !betting && (
+                            {dealPhase === "roundStart" && playState.dealPreFlop && !betting && (
                                 <>
                                     <div>{"<<>>"}</div>
                                     <button className='hover:cursor-pointer' onClick={() => startRound("playerPhase")}>Deal Cards</button>
                                 </>
                             )}
-                            {dealPhase === "betting" && playerHand.length > 0 && !betting && (
+                            {dealPhase === "betting" && playState.dealFlop && !betting && (
                                 <>
                                     <div>{"<<>>"}</div>
                                     <button className='hover:cursor-pointer' onClick={() => setBetInfo({ ...bettingInfo, dealPhase: "flop", betting: false })}>Deal Flop</button>
                                 </>
                             )}
-                            {dealPhase === "betting" && flop.length > 0 && !betting && (
+                            {dealPhase === "betting" && playState.dealTurn && !betting && (
                                 <>
                                     <div>{"<<>>"}</div>
                                     <button className='hover:cursor-pointer' onClick={() => setBetInfo({ ...bettingInfo, dealPhase: "turn", betting: false })}>Deal Turn</button>
                                 </>
                             )}
-                            {dealPhase === "betting" && turn.length > 0 && !betting && (
+                            {dealPhase === "betting" && playState.dealRiver && !betting && (
                                 <>
                                     <div>{"<<>>"}</div>
                                     <button className='hover:cursor-pointer' onClick={() => setBetInfo({ ...bettingInfo, dealPhase: "river", betting: false })}>Deal River</button>

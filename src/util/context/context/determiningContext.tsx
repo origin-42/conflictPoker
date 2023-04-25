@@ -1,6 +1,6 @@
 import React, { FC, createContext, useContext, useEffect } from 'react';
 
-import { Card } from '../contextTypes/contextTypes';
+import { Card, PlayerAction } from '../contextTypes/contextTypes';
 import { getBestPokerHand, checkHighCard } from '../contextHelpers/pokerHands';
 import { useBettingContext } from "./bettingContext";
 import { useDealerContext } from './dealerContext';
@@ -33,17 +33,17 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
   const bettingContextInfo: any = useBettingContext();
   const { bettingInfo, setBetInfo, makeRaise, makeBet, call, check, fold } = bettingContextInfo;
 
-  const dealInfo = useDealerContext();
-  const { dealerInfo } = dealInfo;
+  const { dealerInfo } = useDealerContext();
 
   // Make Jim make a move whenever the turn switches to him
   useEffect(() => {
     if (bettingInfo.playerMove === "jim" && bettingInfo.dealPhase === "betting") {
+      console.log("JIMS MAKIN A MOVE")
       setTimeout(() => {
         makeDecision(dealerInfo.jimsHand);
       }, 1000);
     }
-  }, [bettingInfo]);
+  }, [bettingInfo.dealPhase, bettingInfo.playerMove]);
 
   determineByHighCard = function (playerHighCard: Card[], jimsHighCard: Card[]): string {
     for (let i = 0; i < playerHighCard.length; i++)
@@ -106,20 +106,29 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
 
   // Make Jim make a decision of whether the check, raise or bet.
   makeDecision = function (cards: Card[]) {
-      console.log("JIMS MAKIN A MOVE")
+      
       // calculate odds of winning with current hand as a percentage.
-      const { playerBet, playerRaise, jimsBet, jimsRaise, potSize, blinds } = bettingInfo;
+      const { playerBet, playerRaise, jimsBet, jimsRaise, blinds, playerActions } = bettingInfo;
+      const { flop } = dealerInfo;
       const odds = calculateOdds(cards);
 
-      const firstToAct = playerBet + playerRaise === 0 && !jimsRaise && !jimsBet || playerBet + playerRaise === blinds;
-      const playerChecks = playerBet + playerRaise === 0;
-      const preFLop = !potSize;
-      const playerBets = playerBet > 0;
-      const playerRaises = playerRaise > 0;
+      let currentBlinds = blinds;
+      const firstToAct: boolean = playerBet + playerRaise === 0 && !jimsRaise && !jimsBet || playerBet + playerRaise === blinds;
+      const playerChecks: boolean = playerActions.every((player: PlayerAction) => player.player === "player" && player.action === "check");
+      const preFLop: boolean = !flop[0];
+      const playerBets: boolean = playerBet > 0;
+      const playerRaises: boolean = playerRaise > 0;
+      const playerCalls: boolean = playerBet === jimsBet + jimsRaise;
       let previousPlayerRaise = 0;
-    
+
+      if (playerCalls && playerBet !== currentBlinds) {
+        console.log("Player calls bet or raise")
+        return setBetInfo({ ...bettingInfo, betting: false });
+      };
+
       if (firstToAct) {
         if (preFLop) { 
+          console.log("PreFlop")
           if (odds >= 50) makeRaise("jim", bettingInfo.blinds + jimsBet);
           else if (odds >= 60) check("jim"); 
           else if (odds >= 70) makeRaise("jim", playerBet * 2);
@@ -128,6 +137,7 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
           else check("jim"); 
 
         } else {
+          console.log("Not PreFlop")
           if (odds >= 50) makeBet("jim", bettingInfo.blinds + playerBet);
           else if (odds >= 60) call("jim"); 
           else if (odds >= 70) makeBet("jim", playerBet * 2);
@@ -138,9 +148,11 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
 
         return;
       }
-      
+
       if (playerChecks) { 
+        console.log("Player Checks")
         if (preFLop) {
+          console.log("PreFlop")
           if (odds >= 50) makeRaise("jim", bettingInfo.blinds + jimsBet);
           else if (odds >= 60) check("jim"); 
           else if (odds >= 70) makeRaise("jim", playerBet * 2);
@@ -149,6 +161,7 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
           else check("jim"); 
 
         } else {
+          console.log("Not Pre Flop")
           if (odds >= 50) makeBet("jim", bettingInfo.blinds + playerBet);
           else if (odds >= 60) call("jim"); 
           else if (odds >= 70) makeBet("jim", playerBet * 2);
@@ -158,8 +171,8 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
         };
 
       } else if (playerBets) {
+        console.log("Player Bets")
         if (playerBet === jimsBet + jimsRaise) {
-
 
         } else {
           if (odds >= 50) fold("player");
@@ -172,6 +185,7 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
         }
 
       } else if (playerRaises) {
+        console.log("Player Raises")
         if (odds >= 50) fold("player");
         else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim");
         else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim");
@@ -181,6 +195,7 @@ export const DeterminingProvider: FC<any> = ({ children }) => {
         previousPlayerRaise = playerRaise;
 
       } else if (jimsBet === previousPlayerRaise && playerRaise > previousPlayerRaise) {
+        console.log("Player reraises")
         if (odds >= 50) fold("player");
         else if (odds >= 60 && playerBet + playerRaise <= jimsBet * 2) call("jim");
         else if (odds >= 70 && playerBet + playerRaise <= jimsBet * 5) call("jim");

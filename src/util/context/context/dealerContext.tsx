@@ -1,4 +1,4 @@
-import React, { FC, createContext, useContext, useState, useEffect } from 'react';
+import React, { FC, createContext, useContext, useState, useRef, useEffect } from 'react';
 import { fetchNewDeck, takeNewCard, shuffleDeck } from '../contextHelpers/dealing';
 import { NewDeck, NewCard, Card, GameStart } from '../contextTypes/contextTypes';
 import cardBack from "../../../assets/tableImgs/Cards/CardBack/cardBack.png";
@@ -53,16 +53,36 @@ export const gameStart: GameStart = {
 
 export const DealerProvider: FC<any> = ({ children }) => {
     const [dealerInfo, setDealerInfo] = useState<GameStart>(gameStart);
+    const memoRef = useRef<GameStart>(dealerInfo);
 
     const bettingData: BettingContextValues = useBettingContext();
     const { bettingInfo, setBetInfo } = bettingData;
 
-    const determiningData: DeterminingContextValues = useDeterminingContext();
-    const { compareHands } = determiningData;
-
     // useEffect(() => {
-    //   console.log(dealerInfo)
-    // }, [dealerInfo])
+    //   // Add an index signature to the State interface
+    //   interface StateWithIndex extends GameStart {
+    //     [key: string]: unknown;
+    //   }
+  
+    //   // Compare current state with memoized state
+    //   const prevMemo = memoRef.current;
+    //   const keys = Object.keys(dealerInfo);
+    //   const changes: { [key: string]: { prevValue: unknown, newValue: unknown } } = {};
+    //   let hasChanged = false;
+    //   for (const key of keys) {
+    //     if ((dealerInfo as StateWithIndex)[key] !== (prevMemo as StateWithIndex)[key]) {
+    //       changes[key] = { prevValue: (prevMemo as StateWithIndex)[key], newValue: (dealerInfo as StateWithIndex)[key] };
+    //       hasChanged = true;
+    //     }
+    //   }
+  
+    //   // Log any changes and update memoized state
+    //   if (hasChanged) {
+    //     console.log('Dealing State:', changes);
+    //     memoRef.current = { ...dealerInfo };
+    //   }
+    //   console.log("Dealer Logged")
+    // }, [dealerInfo]);
 
     dealCards = async function (deck_id, placement) {
       let numCardsToDeal = 1; // default number of cards to deal
@@ -110,8 +130,13 @@ export const DealerProvider: FC<any> = ({ children }) => {
     restartGame = async function (deck_id) {
       const button = pullRandom(["player", "jim"]);
       const shuffledDeck: NewDeck = await shuffleTheDeck(deck_id);
-      setDealerInfo({ ...gameStart, button, deck_id, timer: true });
-      setBetInfo({ ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" });
+
+      const gameState = { ...gameStart, deck_id: shuffledDeck.deck_id, button, timer: true };
+      const roundState = { ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" };
+
+      
+      setDealerInfo({ ...gameState });
+      setBetInfo({ ...roundState });
       
       return shuffledDeck;
     };
@@ -123,13 +148,8 @@ export const DealerProvider: FC<any> = ({ children }) => {
 
     startGame = async function () {
       const newDeck: NewDeck = await fetchNewDeck();
-      const shuffledDeck: NewDeck = await shuffleTheDeck(newDeck.deck_id);
-      const players = ["player", "jim"];
-      const button = pullRandom(players);
-      const startGame = { ...gameStart, deck_id: shuffledDeck.deck_id, button, timer: true };
-      setBetInfo({ ...roundStart, playerStack: 3000, jimsStack: 3000, dealPhase: "roundStart" });
-      setDealerInfo({ ...startGame });
-      return shuffledDeck;
+
+      return restartGame(newDeck.deck_id);
     };
 
     restartRound = async function (deck_id) {

@@ -12,7 +12,7 @@ export const PlayerActions = () => {
     const { dealerInfo } = useDealerContext();
     const { button } = dealerInfo;
 
-    const { bettingInfo, setBetInfo, makeBet, makeRaise, call, addToPot, dispersePot, fold } = useBettingContext();
+    const { bettingInfo, setBetInfo, makeBet, makeRaise, call, check, addToPot, dispersePot, fold } = useBettingContext();
     const { playerBet, playerRaise, playerStack, jimsBet, jimsRaise, dealPhase, blinds } = bettingInfo;
 
     const playersTotal = playerBet + playerRaise + betAmount.bet + betAmount.raise;
@@ -24,10 +24,6 @@ export const PlayerActions = () => {
     const playerCanRaise = jimsTotal > playersTotal;
 
     const playerAllIn = jimsTotal > playersTotal + playerStack;
-
-    const setCheck = function () {
-        setBetInfo({ ...bettingInfo, playerMove: "jim" });
-    };
 
     return (
         <section id='optionsSection' className='absolute flex flex-col gap-2 left-0 top-1/2 transform -translate-y-1/2'>
@@ -50,7 +46,7 @@ export const PlayerActions = () => {
                         )}
 
                         {/* Make Check */}
-                        {playerCanCheck && <button className='bg-white px-4 py-2 rounded' onClick={() => setCheck()}>Check</button>}
+                        {playerCanCheck && <button className='bg-white px-4 py-2 rounded' onClick={() => check()}>Check</button>}
 
                         {/* Make Call */}
                         {playerCanCall && <button className='bg-white px-4 py-2 rounded' onClick={() => call("player", false)}>Call {jimsTotal}{playerAllIn && ", all in!"}</button>}

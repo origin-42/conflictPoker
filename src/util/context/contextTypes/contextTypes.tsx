@@ -37,11 +37,14 @@ export interface GameStart {
     playerHand: Card[];
     jimsHand: Card[];
 }
+
 export interface RoundStart {
     potSize: number;
     blinds: number;
     roundWinner: string;
     playerMove: string;
+    playerActions: PlayerAction[];
+    action: string;
     buttonImg: string;
     betting: boolean;
     dealPhase: string;
@@ -52,6 +55,11 @@ export interface RoundStart {
     jimsBet: number;
     jimsRaise: number;
     jimsStack: number;
+}
+  
+export interface PlayerAction {
+    player: string;
+    action: string;
 }
 
 export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
